@@ -7,8 +7,6 @@ import dotenv from "dotenv";
 dotenv.config({ path: [".env.local", ".env"] });
 
 import { seedProducts } from "./lib/seed";
-// @ts-ignore - Check if seed exists
-let seedFn: any = seedProducts;
 import Product from "./models/Product";
 import productRoutes from "./routes/productRoutes";
 import paymentRoutes from "./routes/paymentRoutes";
@@ -19,7 +17,7 @@ import uploadRoutes from "./routes/uploadRoutes";
 const app = express();
 
 export async function startServer() {
-  const PORT = process.env.PORT || 3000;
+  const PORT = parseInt(process.env.PORT || "3000", 10);
 
   // Connect to MongoDB
   const MONGODB_URI = process.env.MONGODB_URI || "mongodb://127.0.0.1:27017/annaya-boutique";
@@ -28,15 +26,11 @@ export async function startServer() {
     await mongoose.connect(MONGODB_URI);
     console.log("Connected to MongoDB successfully");
     
-    // Only seed if in development or explicitly requested
-    if (process.env.NODE_ENV !== "production") {
-      try {
-        if (typeof seedFn === 'function') {
-          await seedFn();
-        }
-      } catch (seedErr) {
-        console.warn("Seeding skipped or failed (likely missing seed file)");
-      }
+    // Attempt to seed products (has internal count === 0 check)
+    try {
+      await seedProducts();
+    } catch (seedErr) {
+      console.error("Seeding failed:", seedErr);
     }
   } catch (err) {
     console.error("MongoDB connection error:", err);
