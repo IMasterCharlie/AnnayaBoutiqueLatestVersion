@@ -61,9 +61,11 @@ export async function connectDB() {
     mongoose.set("strictQuery", false);
     await mongoose.connect(MONGODB_URI);
     console.log("Connected to MongoDB successfully");
-    
+
     try {
-      await seedProducts();
+      if ((await Product.countDocuments()) === 0) {
+        await seedProducts();
+      }
     } catch (seedErr) {
       console.error("Seeding failed:", seedErr);
     }
