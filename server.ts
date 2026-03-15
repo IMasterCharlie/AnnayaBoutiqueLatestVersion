@@ -7,6 +7,8 @@ import dotenv from "dotenv";
 dotenv.config({ path: [".env.local", ".env"] });
 
 import { seedProducts } from "./lib/seed";
+// @ts-ignore - Check if seed exists
+let seedFn: any = seedProducts;
 import Product from "./models/Product";
 import productRoutes from "./routes/productRoutes";
 import paymentRoutes from "./routes/paymentRoutes";
@@ -14,9 +16,10 @@ import userRoutes from "./routes/userRoutes";
 import adminRoutes from "./routes/adminRoutes";
 import uploadRoutes from "./routes/uploadRoutes";
 
-async function startServer() {
-  const app = express();
-  const PORT = 3000;
+const app = express();
+
+export async function startServer() {
+  const PORT = process.env.PORT || 3000;
 
   // Connect to MongoDB
   const MONGODB_URI = process.env.MONGODB_URI || "mongodb://127.0.0.1:27017/annaya-boutique";
@@ -24,7 +27,17 @@ async function startServer() {
     mongoose.set("strictQuery", false);
     await mongoose.connect(MONGODB_URI);
     console.log("Connected to MongoDB successfully");
-    await seedProducts();
+    
+    // Only seed if in development or explicitly requested
+    if (process.env.NODE_ENV !== "production") {
+      try {
+        if (typeof seedFn === 'function') {
+          await seedFn();
+        }
+      } catch (seedErr) {
+        console.warn("Seeding skipped or failed (likely missing seed file)");
+      }
+    }
   } catch (err) {
     console.error("MongoDB connection error:", err);
   }
@@ -88,4 +101,8 @@ async function startServer() {
   });
 }
 
-startServer();
+if (process.env.NODE_ENV !== "production" && process.env.VERCEL !== "1") {
+  startServer();
+}
+
+export default app;
