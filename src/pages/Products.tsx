@@ -50,13 +50,18 @@ export const Products = () => {
         let fetchedProducts = res.data;
 
         // Apply priority sorting for "Frock" category
-        if (category === "Frock") {
+        const isFrockCategory = category && ["frock", "frocks"].includes(category.toLowerCase());
+        
+        if (isFrockCategory) {
           const priorityItems = [];
           const otherItems = [];
 
           // Separate priority products from others
           fetchedProducts.forEach((p: any) => {
-            if (FROCK_PRIORITY_IDS.includes(p._id)) {
+            // Handle both string IDs and MongoDB ObjectIDs (if they come as objects with $oid)
+            const id = p._id && typeof p._id === 'object' && p._id.$oid ? p._id.$oid : p._id;
+            
+            if (FROCK_PRIORITY_IDS.includes(id)) {
               priorityItems.push(p);
             } else {
               otherItems.push(p);
@@ -65,7 +70,9 @@ export const Products = () => {
 
           // Sort priority items based on the order in FROCK_PRIORITY_IDS
           priorityItems.sort((a, b) => {
-            return FROCK_PRIORITY_IDS.indexOf(a._id) - FROCK_PRIORITY_IDS.indexOf(b._id);
+            const idA = a._id && typeof a._id === 'object' && a._id.$oid ? a._id.$oid : a._id;
+            const idB = b._id && typeof b._id === 'object' && b._id.$oid ? b._id.$oid : b._id;
+            return FROCK_PRIORITY_IDS.indexOf(idA) - FROCK_PRIORITY_IDS.indexOf(idB);
           });
 
           fetchedProducts = [...priorityItems, ...otherItems];
