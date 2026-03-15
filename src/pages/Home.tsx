@@ -2,7 +2,7 @@ import React, { useEffect, useState, useRef } from "react";
 import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
 import { ArrowRight, Truck, ShieldCheck, RefreshCw, ChevronLeft, ChevronRight, Star } from "lucide-react";
-import axios from "axios";
+import api from "../lib/api";
 import { ProductCard } from "../components/products/ProductCard";
 
 // ─── Testimonials data ────────────────────────────────────────────────────────
@@ -58,8 +58,8 @@ export const Home = () => {
       // Fetch Best Sellers — Lehengas, Frocks (gown-style) sorted by rating
       try {
         const [lehengaRes, frockRes] = await Promise.all([
-          axios.get("/api/products?category=Lehenga&sort=rating"),
-          axios.get("/api/products?category=Frock&sort=rating"),
+          api.get("/api/products?category=Lehenga&sort=rating"),
+          api.get("/api/products?category=Frock&sort=rating"),
         ]);
         const combined = [
           ...(Array.isArray(lehengaRes.data) ? lehengaRes.data.slice(0, 4) : []),
@@ -72,7 +72,7 @@ export const Home = () => {
 
       // Fetch New Arrivals
       try {
-        const newRes = await axios.get("/api/products/new-arrivals");
+        const newRes = await api.get("/api/products/new-arrivals");
         if (Array.isArray(newRes.data)) setNewArrivals(newRes.data);
       } catch (err) {
         console.error("Error fetching new arrivals:", err);

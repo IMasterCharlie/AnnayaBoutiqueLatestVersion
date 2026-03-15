@@ -4,6 +4,7 @@ import { cn } from "../lib/utils";
 import { motion } from "framer-motion";
 import { useAuth0 } from "@auth0/auth0-react";
 import axios from "axios";
+import api from "../lib/api";
 
 export const Profile = () => {
   const [activeTab, setActiveTab] = useState("orders");
@@ -44,11 +45,11 @@ export const Profile = () => {
           // Fetch Orders (Address fetching is handled when switching to the address tab or can be appended here later, 
           // currently Profile Address tab uses the /api/users/me endpoint in its own section if needed.
           // For now, just fetch orders to populate the default tab)
-          const ordersRes = await axios.get(`/api/users/orders?auth0Id=${user.sub}`);
+          const ordersRes = await api.get(`/api/users/orders?auth0Id=${user.sub}`);
           setOrders(ordersRes.data);
           
           // Also fetch the user profile so the UI can display their phone number/details
-          const profileRes = await axios.get(`/api/users/me?auth0Id=${user.sub}`);
+          const profileRes = await api.get(`/api/users/me?auth0Id=${user.sub}`);
           setDbUser(profileRes.data);
         } catch (error) {
           console.error("Failed to sync profile data:", error);
@@ -108,7 +109,7 @@ export const Profile = () => {
 
     setIsSavingAddress(true);
     try {
-      const response = await axios.put("/api/users/address", {
+      const response = await api.put("/api/users/address", {
         auth0Id: user.sub,
         address: addressForm
       });

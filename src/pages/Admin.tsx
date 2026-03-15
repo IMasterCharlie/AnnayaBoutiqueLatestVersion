@@ -5,7 +5,7 @@ import {
   Trash2, ArrowLeft, MapPin, Clock, Truck, CheckCircle, XCircle,
   LogOut, TrendingUp, X, Mail, Phone, ShoppingBag, Loader2
 } from "lucide-react";
-import axios from "axios";
+import api from "../lib/api";
 import { formatCurrency, cn } from "../lib/utils";
 import { toast } from "sonner";
 import { useUserStore } from "../store/useUserStore";
@@ -38,7 +38,7 @@ const CustomerTab = ({
     setCustomerOrders([]);
     setOrdersLoading(true);
     try {
-      const res = await axios.get(`/api/admin/users/${u._id}/orders`, {
+      const res = await api.get(`/api/admin/users/${u._id}/orders`, {
         headers: { "x-auth0-id": adminAuthId },
       });
       setCustomerOrders(Array.isArray(res.data) ? res.data : []);
@@ -299,10 +299,10 @@ export const Admin = () => {
       try {
         const headers = { "x-auth0-id": user.sub };
         const [prodRes, statsRes, ordersRes, usersRes] = await Promise.all([
-          axios.get("/api/products"),
-          axios.get("/api/admin/stats", { headers }),
-          axios.get("/api/admin/orders", { headers }),
-          axios.get("/api/admin/users", { headers }),
+          api.get("/api/products"),
+          api.get("/api/admin/stats", { headers }),
+          api.get("/api/admin/orders", { headers }),
+          api.get("/api/admin/users", { headers }),
         ]);
         setProducts(prodRes.data);
         setOrders(ordersRes.data);
@@ -343,7 +343,7 @@ export const Admin = () => {
   const handleStatusChange = async (orderId: string, newStatus: string) => {
     if (!user?.sub) return;
     try {
-      await axios.put(
+      await api.put(
         `/api/admin/orders/${orderId}/status`,
         { status: newStatus },
         { headers: { "x-auth0-id": user.sub } }
@@ -390,11 +390,11 @@ export const Admin = () => {
         reviewCount: Number(productForm.reviewCount)
       };
       if (editingProduct) {
-        const res = await axios.put(`/api/products/${editingProduct._id}`, payload, { headers: { "x-auth0-id": user.sub } });
+        const res = await api.put(`/api/products/${editingProduct._id}`, payload, { headers: { "x-auth0-id": user.sub } });
         setProducts(products.map(p => p._id === editingProduct._id ? res.data : p));
         toast.success("Product updated successfully");
       } else {
-        const res = await axios.post("/api/products", payload, { headers: { "x-auth0-id": user.sub } });
+        const res = await api.post("/api/products", payload, { headers: { "x-auth0-id": user.sub } });
         setProducts([res.data, ...products]);
         toast.success("New product published");
       }
@@ -409,7 +409,7 @@ export const Admin = () => {
   const handleDeleteProduct = async (id: string) => {
     if (!user?.sub || !window.confirm("Confirm product deletion?")) return;
     try {
-      await axios.delete(`/api/products/${id}`, { headers: { "x-auth0-id": user.sub } });
+      await api.delete(`/api/products/${id}`, { headers: { "x-auth0-id": user.sub } });
       setProducts(products.filter(p => p._id !== id));
       toast.success("Product removed");
     } catch (error) {

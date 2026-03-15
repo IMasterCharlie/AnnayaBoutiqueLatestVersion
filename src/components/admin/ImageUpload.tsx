@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { UploadCloud, X, Loader2 } from 'lucide-react';
-import axios from 'axios';
+import api from '../../lib/api';
 import { toast } from 'sonner';
 
 interface ImageUploadProps {
@@ -21,7 +21,7 @@ export const ImageUpload: React.FC<ImageUploadProps> = ({ images, onChange, user
           const file = e.target.files[i];
           const formData = new FormData();
           formData.append('image', file);
-          const res = await axios.post('/api/upload', formData, {
+          const res = await api.post('/api/upload', formData, {
             headers: {
               'Content-Type': 'multipart/form-data',
               'x-auth0-id': userToken

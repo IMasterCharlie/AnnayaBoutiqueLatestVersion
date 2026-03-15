@@ -6,7 +6,7 @@ import { useWishlistStore } from "../../store/wishlistStore";
 import { cn } from "../../lib/utils";
 import { useAuth0 } from "@auth0/auth0-react";
 import { useUserStore } from "../../store/useUserStore";
-import axios from "axios";
+import api from "../../lib/api";
 
 // ─── Shared search state lifted so both desktop bar & mobile icon use it ──────
 const useSearch = () => {
@@ -28,7 +28,7 @@ const useSearch = () => {
     setLoading(true);
     debounceRef.current = setTimeout(async () => {
       try {
-        const res = await axios.get(`/api/products?search=${encodeURIComponent(query.trim())}`);
+        const res = await api.get(`/api/products?search=${encodeURIComponent(query.trim())}`);
         setResults(res.data.slice(0, 10));
       } catch {
         setResults([]);

@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import { Link, useParams } from "react-router-dom";
 import { motion } from "framer-motion";
 import { ShoppingBag, Heart, Star, ChevronLeft, ChevronRight, MessageCircle, Info, Truck, RefreshCw } from "lucide-react";
-import axios from "axios";
+import api from "../lib/api";
 import { useCartStore } from "../store/cartStore";
 import { useWishlistStore } from "../store/wishlistStore";
 import { formatCurrency, getWhatsAppLink, cn } from "../lib/utils";
@@ -27,12 +27,12 @@ export const ProductDetail = () => {
     const fetchProduct = async () => {
       try {
         setError(null);
-        const res = await axios.get(`/api/products/${slug}`);
+        const res = await api.get(`/api/products/${slug}`);
         setProduct(res.data);
         setSelectedSize(res.data.sizes[0]);
         setSelectedColor(res.data.colors[0]);
 
-        const relatedRes = await axios.get(`/api/products?category=${res.data.category}`);
+        const relatedRes = await api.get(`/api/products?category=${res.data.category}`);
         setRelated(relatedRes.data.filter((p: any) => p._id !== res.data._id).slice(0, 4));
       } catch (err: any) {
         console.error("Error fetching product", err);

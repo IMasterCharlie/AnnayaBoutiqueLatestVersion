@@ -2,7 +2,7 @@ import React, { useEffect, useState, useCallback } from "react";
 import { Link, useSearchParams, useParams } from "react-router-dom";
 import { Filter, X, Search } from "lucide-react";
 import { motion } from "framer-motion";
-import axios from "axios";
+import api from "../lib/api";
 import { ProductCard } from "../components/products/ProductCard";
 import { cn } from "../lib/utils";
 
@@ -39,7 +39,7 @@ export const Products = () => {
         if (minPrice) params.set("minPrice", minPrice);
         if (maxPrice) params.set("maxPrice", maxPrice);
 
-        const res = await axios.get(`/api/products?${params.toString()}`);
+        const res = await api.get(`/api/products?${params.toString()}`);
         setProducts(res.data);
       } catch (err) {
         console.error("Error fetching products", err);

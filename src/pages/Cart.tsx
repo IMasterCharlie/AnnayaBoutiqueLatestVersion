@@ -7,6 +7,7 @@ import { formatCurrency, getWhatsAppLink } from "../lib/utils";
 import { motion, AnimatePresence } from "framer-motion";
 import { useAuth0 } from "@auth0/auth0-react";
 import axios from "axios";
+import api from "../lib/api";
 import { toast } from "sonner";
 
 export const Cart = () => {
@@ -41,7 +42,7 @@ export const Cart = () => {
   useEffect(() => {
     if (isAuthenticated && user?.sub) {
       setIsLoadingAddresses(true);
-      axios.get(`/api/users/me?auth0Id=${user.sub}`)
+      api.get(`/api/users/me?auth0Id=${user.sub}`)
         .then(res => {
           if (res.data?.addresses) {
             setAddresses(res.data.addresses);
@@ -98,7 +99,7 @@ export const Cart = () => {
 
     setIsSavingAddress(true);
     try {
-      const response = await axios.put("/api/users/address", {
+      const response = await api.put("/api/users/address", {
         auth0Id: user.sub,
         address: addressForm
       });
@@ -163,7 +164,7 @@ export const Cart = () => {
     try {
       setIsProcessing(true);
 */
-      const { data: order } = await axios.post("/api/payment/create-order", {
+      const { data: order } = await api.post("/api/payment/create-order", {
         amount: total,
       });
 
@@ -176,7 +177,7 @@ export const Cart = () => {
         order_id: order.id,
         handler: async function (response: any) {
           try {
-              await axios.post("/api/payment/verify", {
+              await api.post("/api/payment/verify", {
                 razorpay_order_id: response.razorpay_order_id,
                 razorpay_payment_id: response.razorpay_payment_id,
                 razorpay_signature: response.razorpay_signature,

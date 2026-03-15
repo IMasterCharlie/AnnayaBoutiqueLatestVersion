@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useAuth0 } from '@auth0/auth0-react';
-import axios from 'axios';
+import api from '../lib/api';
 import { Phone, Loader2, ShieldCheck } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useNavigate, useLocation } from 'react-router-dom';
@@ -32,7 +32,7 @@ export const AuthSyncManager = ({ children }: { children: React.ReactNode }) => 
       setIsSyncing(true);
       
       // Step 1: Sync the user to MongoDB to ensure they exist
-      axios.post('/api/users/sync', {
+      api.post('/api/users/sync', {
         auth0Id: user.sub,
         name: user.name,
         email: user.email,
@@ -81,7 +81,7 @@ export const AuthSyncManager = ({ children }: { children: React.ReactNode }) => 
 
     setIsSaving(true);
     try {
-      await axios.put('/api/users/phone', {
+      await api.put('/api/users/phone', {
         auth0Id: user.sub,
         phone: phoneNumber
       });

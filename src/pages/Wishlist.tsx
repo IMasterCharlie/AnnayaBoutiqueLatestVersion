@@ -4,7 +4,7 @@ import { Heart, ShoppingBag, ArrowRight } from "lucide-react";
 import { useWishlistStore } from "../store/wishlistStore";
 import { ProductCard } from "../components/products/ProductCard";
 import { useEffect, useState } from "react";
-import axios from "axios";
+import api from "../lib/api";
 
 export const Wishlist = () => {
   const { wishlist } = useWishlistStore();
@@ -19,7 +19,7 @@ export const Wishlist = () => {
       }
       try {
         // In a real app, you'd have a specific endpoint for this
-        const res = await axios.get("/api/products");
+        const res = await api.get("/api/products");
         setProducts(res.data.filter((p: any) => wishlist.includes(p._id)));
       } catch (err) {
         console.error("Error fetching wishlist products", err);
