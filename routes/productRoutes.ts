@@ -2,19 +2,26 @@ import express from "express";
 import mongoose from "mongoose";
 import Product from "../models/Product";
 import { isAdmin } from "./adminRoutes";
+import { queryProductsJSON, getCategoriesFromJSON } from "../lib/jsonDb";
 
 const router = express.Router();
 
 // Get all products
 router.get("/", async (req, res) => {
   try {
-    if (mongoose.connection.readyState !== 1) {
-      return res.status(503).json({ message: "Database not connected" });
-    }
-    if (!Product) {
-      return res.status(500).json({ message: "Product model not initialized" });
-    }
     const { category, sort, search, minPrice, maxPrice } = req.query;
+
+    if (mongoose.connection.readyState !== 1 || !Product) {
+      console.log("Database not connected, falling back to JSON");
+      const products = await queryProductsJSON({
+        category: category as string,
+        sort: sort as string,
+        search: search as string,
+        minPrice: minPrice ? Number(minPrice) : undefined,
+        maxPrice: maxPrice ? Number(maxPrice) : undefined
+      });
+      return res.json(products);
+    }
     let query: any = {};
 
     // Category filter
@@ -69,7 +76,9 @@ router.get("/", async (req, res) => {
 router.get("/categories", async (req, res) => {
   try {
     if (mongoose.connection.readyState !== 1) {
-      return res.status(503).json({ message: "Database not connected" });
+      console.log("Database not connected, falling back to JSON for categories");
+      const categories = await getCategoriesFromJSON();
+      return res.json(categories);
     }
     
     // Hardcoded priorities to ensure these always show up if they exist
@@ -110,11 +119,10 @@ router.get("/categories", async (req, res) => {
 // Get featured products
 router.get("/featured", async (req, res) => {
   try {
-    if (mongoose.connection.readyState !== 1) {
-      return res.status(503).json({ message: "Database not connected" });
-    }
-    if (!Product) {
-      return res.status(500).json({ message: "Product model not initialized" });
+    if (mongoose.connection.readyState !== 1 || !Product) {
+      console.log("Database not connected, falling back to JSON for featured");
+      const products = await queryProductsJSON({ isFeatured: true }) as any[];
+      return res.json(products.slice(0, 8));
     }
     const products = await Product.find({ isFeatured: true }).limit(8);
     res.json(products);
@@ -127,11 +135,10 @@ router.get("/featured", async (req, res) => {
 // Get new arrivals
 router.get("/new-arrivals", async (req, res) => {
   try {
-    if (mongoose.connection.readyState !== 1) {
-      return res.status(503).json({ message: "Database not connected" });
-    }
-    if (!Product) {
-      return res.status(500).json({ message: "Product model not initialized" });
+    if (mongoose.connection.readyState !== 1 || !Product) {
+      console.log("Database not connected, falling back to JSON for new arrivals");
+      const products = await queryProductsJSON({ isNewArrival: true }) as any[];
+      return res.json(products.slice(0, 8));
     }
     const products = await Product.find({ isNewArrival: true }).limit(8);
     res.json(products);
@@ -144,11 +151,13 @@ router.get("/new-arrivals", async (req, res) => {
 // Get product by slug
 router.get("/:slug", async (req, res) => {
   try {
-    if (mongoose.connection.readyState !== 1) {
-      return res.status(503).json({ message: "Database not connected" });
-    }
-    if (!Product) {
-      return res.status(500).json({ message: "Product model not initialized" });
+    if (mongoose.connection.readyState !== 1 || !Product) {
+      console.log("Database not connected, falling back to JSON for slug:", req.params.slug);
+      const product = await queryProductsJSON({ slug: req.params.slug });
+      if (!product) {
+        return res.status(404).json({ message: `Product not found for slug: ${req.params.slug}` });
+      }
+      return res.json(product);
     }
     const product = await Product.findOne({ slug: req.params.slug });
     if (!product) {
