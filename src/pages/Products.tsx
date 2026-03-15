@@ -6,6 +6,13 @@ import api from "../lib/api";
 import { ProductCard } from "../components/products/ProductCard";
 import { cn } from "../lib/utils";
 
+const FROCK_PRIORITY_IDS = [
+  "69a35e8643e117e303520c39",
+  "69a35ca343e117e303520c26",
+  "69a35c7c43e117e303520c22",
+  "69a35c5a43e117e303520c1e"
+];
+
 export const Products = () => {
   const [searchParams, setSearchParams] = useSearchParams();
   const { category: categoryParam } = useParams<{ category?: string }>();
@@ -40,7 +47,31 @@ export const Products = () => {
         if (maxPrice) params.set("maxPrice", maxPrice);
 
         const res = await api.get(`/api/products?${params.toString()}`);
-        setProducts(res.data);
+        let fetchedProducts = res.data;
+
+        // Apply priority sorting for "Frock" category
+        if (category === "Frock") {
+          const priorityItems = [];
+          const otherItems = [];
+
+          // Separate priority products from others
+          fetchedProducts.forEach((p: any) => {
+            if (FROCK_PRIORITY_IDS.includes(p._id)) {
+              priorityItems.push(p);
+            } else {
+              otherItems.push(p);
+            }
+          });
+
+          // Sort priority items based on the order in FROCK_PRIORITY_IDS
+          priorityItems.sort((a, b) => {
+            return FROCK_PRIORITY_IDS.indexOf(a._id) - FROCK_PRIORITY_IDS.indexOf(b._id);
+          });
+
+          fetchedProducts = [...priorityItems, ...otherItems];
+        }
+
+        setProducts(fetchedProducts);
       } catch (err) {
         console.error("Error fetching products", err);
       } finally {

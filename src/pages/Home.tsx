@@ -94,7 +94,7 @@ export const Home = () => {
         <div className="absolute top-[-10%] right-[-10%] w-[50%] aspect-square bg-gold/20 rounded-full blur-[120px]" />
         <div className="absolute bottom-[-10%] left-[-10%] w-[40%] aspect-square bg-sky/20 rounded-full blur-[100px]" />
 
-        <div className="relative z-10 max-w-4xl mx-auto px-4 text-center">
+        <div className="relative z-10 max-w-4xl mx-auto py-10 px-4 text-center">
           <motion.div
             initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}
             className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-gold/10 border border-gold/30 text-gold text-xs font-bold tracking-[3px] uppercase mb-8"
