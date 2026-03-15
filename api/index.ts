@@ -1,10 +1,10 @@
-import app, { startServer } from "../server";
+import app, { connectDB } from "../server";
 
 let isInitialized = false;
 
 export default async (req: any, res: any) => {
   if (!isInitialized) {
-    await startServer();
+    await connectDB();
     isInitialized = true;
   }
   return app(req, res);
