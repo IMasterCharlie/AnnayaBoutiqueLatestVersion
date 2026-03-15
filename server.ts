@@ -69,7 +69,8 @@ export async function connectDB() {
     }
   } catch (err) {
     console.error("MongoDB connection error:", err);
-    throw err;
+    console.log("Starting server without database connection. JSON fallback will be used.");
+    // We don't re-throw the error so the server can still start
   }
 }
 

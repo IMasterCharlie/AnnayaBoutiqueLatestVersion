@@ -4,7 +4,11 @@ let isInitialized = false;
 
 export default async (req: any, res: any) => {
   if (!isInitialized) {
-    await connectDB();
+    try {
+      await connectDB();
+    } catch (err) {
+      console.error("Vercel entry point: connectDB failed", err);
+    }
     isInitialized = true;
   }
   return app(req, res);
