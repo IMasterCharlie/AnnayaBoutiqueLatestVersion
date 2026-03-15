@@ -6,12 +6,103 @@ import api from "../lib/api";
 import { ProductCard } from "../components/products/ProductCard";
 import { cn } from "../lib/utils";
 
-const FROCK_PRIORITY_IDS = [
-  "69a35e8643e117e303520c39",
-  "69a35ca343e117e303520c26",
-  "69a35c7c43e117e303520c22",
-  "69a35c5a43e117e303520c1e"
+const HARDCODED_FROCK_PRIORITY_PRODUCTS = [
+  {
+    "_id": "69a35e8643e117e303520c39",
+    "name": "Red & Black Ombre Festive Gown",
+    "slug": "red-black-ombre-festive-gown",
+    "description": "Bold and elegant, this red-to-black ombre gown is designed to make a striking statement. Featuring a structured bodice with delicate embellishments and soft puff sleeves, the flowing pleated skirt adds dramatic movement and grace to every step.",
+    "category": "Frock",
+    "images": [
+      "https://res.cloudinary.com/douvhybil/image/upload/v1772314245/AWP%20Shopping-products/uwsey4hgzov8pdofqovc.jpg"
+    ],
+    "price": 500,
+    "originalPrice": 588,
+    "discountPercent": 15,
+    "sizes": ["XS", "S", "M", "L", "XL", "XXL", "3XL", "4XL", "5XL"],
+    "colors": [
+      { "name": "Red", "hex": "#DC2626", "_id": "2d968895fc2ef03b4a6976ba" },
+      { "name": "Black", "hex": "#111827", "_id": "14bf2cc1bf2c5977397ddc42" }
+    ],
+    "stock": 34,
+    "rating": 5,
+    "reviewCount": 1293,
+    "isFeatured": false,
+    "isNewArrival": false,
+    "createdAt": "2026-02-28T21:30:46.491Z"
+  },
+  {
+    "_id": "69a35ca343e117e303520c26",
+    "name": "Scarlet Red & Deep Teal Ombre Gown",
+    "slug": "scarlet-red-deep-teal-ombre-gown",
+    "description": "A stunning fusion of bold colors, this scarlet red gown blends seamlessly into a deep teal hem for a sophisticated festive look. The intricately embellished bodice adds richness while the voluminous skirt ensures graceful movement.",
+    "category": "Frock",
+    "images": [
+      "https://res.cloudinary.com/douvhybil/image/upload/v1772313763/AWP%20Shopping-products/dmbw5wosjugeadwdddzu.jpg"
+    ],
+    "price": 500,
+    "originalPrice": 588,
+    "discountPercent": 15,
+    "sizes": ["XS", "S", "M", "L", "XL", "XXL", "3XL", "4XL", "5XL"],
+    "colors": [
+      { "name": "Red", "hex": "#DC2626", "_id": "63b56bf8dd3e37f0c1d7a06a" }
+    ],
+    "stock": 32,
+    "rating": 4.9,
+    "reviewCount": 1236,
+    "isFeatured": false,
+    "isNewArrival": false,
+    "createdAt": "2026-02-28T21:22:43.944Z"
+  },
+  {
+    "_id": "69a35c7c43e117e303520c22",
+    "name": "Blush Pink to Crimson Ombre Gown",
+    "slug": "blush-pink-to-crimson-ombre-gown",
+    "description": "Romantic and feminine, this blush pink gown gradually deepens into a rich crimson hem, creating a dreamy gradient effect. The delicate embroidered motifs on the bodice enhance its soft and graceful aesthetic.",
+    "category": "Frock",
+    "images": [
+      "https://res.cloudinary.com/douvhybil/image/upload/v1772313723/AWP%20Shopping-products/rdbtjc3qvpubrzondnwk.jpg"
+    ],
+    "price": 500,
+    "originalPrice": 588,
+    "discountPercent": 15,
+    "sizes": ["XS", "S", "M", "L", "XL", "XXL", "3XL", "4XL", "5XL"],
+    "colors": [
+      { "name": "Pink", "hex": "#EC4899", "_id": "dc32c3880584730413d335f1" }
+    ],
+    "stock": 47,
+    "rating": 4.9,
+    "reviewCount": 1196,
+    "isFeatured": true,
+    "isNewArrival": false,
+    "createdAt": "2026-02-28T21:22:04.297Z"
+  },
+  {
+    "_id": "69a35c5a43e117e303520c1e",
+    "name": "Sunshine Yellow & Teal Ombre Gown",
+    "slug": "sunshine-yellow-teal-ombre-gown",
+    "description": "Bright, cheerful, and effortlessly graceful, this sunshine yellow gown transitions beautifully into a deep teal ombre hem. The embellished bodice paired with soft pleats creates a refreshing festive look perfect for daytime celebrations.",
+    "category": "Frock",
+    "images": [
+      "https://res.cloudinary.com/douvhybil/image/upload/v1772313689/AWP%20Shopping-products/gwgpp5mk9y5pfh174app.jpg"
+    ],
+    "price": 500,
+    "originalPrice": 588,
+    "discountPercent": 15,
+    "sizes": ["XS", "S", "M", "L", "XL", "XXL", "3XL", "4XL", "5XL"],
+    "colors": [
+      { "name": "Yellow", "hex": "#F5C518", "_id": "ff4ae12a01b4612c40bae4e7" }
+    ],
+    "stock": 22,
+    "rating": 5,
+    "reviewCount": 1347,
+    "isFeatured": false,
+    "isNewArrival": false,
+    "createdAt": "2026-02-28T21:21:30.297Z"
+  }
 ];
+
+const FROCK_PRIORITY_IDS = HARDCODED_FROCK_PRIORITY_PRODUCTS.map(p => p._id);
 
 export const Products = () => {
   const [searchParams, setSearchParams] = useSearchParams();
@@ -53,29 +144,14 @@ export const Products = () => {
         const isFrockCategory = category && ["frock", "frocks"].includes(category.toLowerCase());
         
         if (isFrockCategory) {
-          const priorityItems = [];
-          const otherItems = [];
-
-          // Separate priority products from others
-          fetchedProducts.forEach((p: any) => {
-            // Handle both string IDs and MongoDB ObjectIDs (if they come as objects with $oid)
+          // Filter out any products from the API that match the hardcoded priority IDs
+          const otherItems = fetchedProducts.filter((p: any) => {
             const id = p._id && typeof p._id === 'object' && p._id.$oid ? p._id.$oid : p._id;
-            
-            if (FROCK_PRIORITY_IDS.includes(id)) {
-              priorityItems.push(p);
-            } else {
-              otherItems.push(p);
-            }
+            return !FROCK_PRIORITY_IDS.includes(id);
           });
 
-          // Sort priority items based on the order in FROCK_PRIORITY_IDS
-          priorityItems.sort((a, b) => {
-            const idA = a._id && typeof a._id === 'object' && a._id.$oid ? a._id.$oid : a._id;
-            const idB = b._id && typeof b._id === 'object' && b._id.$oid ? b._id.$oid : b._id;
-            return FROCK_PRIORITY_IDS.indexOf(idA) - FROCK_PRIORITY_IDS.indexOf(idB);
-          });
-
-          fetchedProducts = [...priorityItems, ...otherItems];
+          // Prepend the hardcoded products
+          fetchedProducts = [...HARDCODED_FROCK_PRIORITY_PRODUCTS, ...otherItems];
         }
 
         setProducts(fetchedProducts);
